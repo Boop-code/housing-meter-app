@@ -1,17 +1,21 @@
-# housing_meter_app
+# Приложение для учета показаний ЖКХ
 
-A new Flutter project.
+Учебный проект, выполненный в рамках лабораторных работ.
 
-## Getting Started
+## Технологии
 
-This project is a starting point for a Flutter application.
+- Flutter
+- Dart
+- Flutter Web
+- VS Code
 
-A few resources to get you started if this is your first Flutter project:
+## Вариант
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+Вариант 2 — мобильное приложение для учета показаний ЖКХ
+со встроенным модулем распознавания счетчиков.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Запуск
+
+```bash
+flutter pub get
+flutter run -d chrome
