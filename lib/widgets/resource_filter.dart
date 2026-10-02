@@ -23,25 +23,19 @@ class ResourceFilter extends StatelessWidget {
             title: 'Все',
             type: null,
           ),
-
           const SizedBox(width: 8),
-
           _buildFilter(
             context,
             title: '💧 Вода',
             type: ResourceType.water,
           ),
-
           const SizedBox(width: 8),
-
           _buildFilter(
             context,
             title: '🔥 Газ',
             type: ResourceType.gas,
           ),
-
           const SizedBox(width: 8),
-
           _buildFilter(
             context,
             title: '⚡ Электричество',

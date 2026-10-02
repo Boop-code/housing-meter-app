@@ -14,13 +14,11 @@ class HousingMeterApp extends StatelessWidget {
     return MaterialApp(
       title: 'Учёт показаний ЖКХ',
       debugShowCheckedModeBanner: false,
-
       theme: ThemeData(
         useMaterial3: true,
         colorSchemeSeed: Colors.blue,
         scaffoldBackgroundColor: const Color(0xFFF5F7FA),
       ),
-
       home: const HomeScreen(),
     );
   }

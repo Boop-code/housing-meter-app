@@ -12,6 +12,13 @@ class MeterCard extends StatelessWidget {
     required this.onTap,
   });
 
+  double get consumption {
+    final value =
+        meter.currentReading - meter.previousReading;
+
+    return value < 0 ? 0 : value;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -36,15 +43,16 @@ class MeterCard extends StatelessWidget {
                 alignment: Alignment.center,
                 child: Text(
                   meter.resourceIcon,
-                  style: const TextStyle(fontSize: 26),
+                  style: const TextStyle(
+                    fontSize: 26,
+                  ),
                 ),
               ),
-
               const SizedBox(width: 16),
-
               Expanded(
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment:
+                      CrossAxisAlignment.start,
                   children: [
                     Text(
                       meter.name,
@@ -53,18 +61,14 @@ class MeterCard extends StatelessWidget {
                         fontWeight: FontWeight.w600,
                       ),
                     ),
-
                     const SizedBox(height: 5),
-
                     Text(
                       meter.resourceName,
                       style: TextStyle(
                         color: Colors.grey.shade700,
                       ),
                     ),
-
                     const SizedBox(height: 4),
-
                     Text(
                       '№ ${meter.serialNumber}',
                       style: TextStyle(
@@ -75,22 +79,19 @@ class MeterCard extends StatelessWidget {
                   ],
                 ),
               ),
-
               const SizedBox(width: 12),
-
               Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
+                crossAxisAlignment:
+                    CrossAxisAlignment.end,
                 children: [
                   Text(
-                    meter.currentReading.toStringAsFixed(2),
+                    meter.currentReading
+                        .toStringAsFixed(2),
                     style: const TextStyle(
                       fontSize: 19,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-
-                  const SizedBox(height: 3),
-
                   Text(
                     meter.unit,
                     style: TextStyle(
@@ -98,9 +99,17 @@ class MeterCard extends StatelessWidget {
                       fontSize: 13,
                     ),
                   ),
-
                   const SizedBox(height: 6),
-
+                  Text(
+                    'Расход: '
+                    '${consumption.toStringAsFixed(2)} '
+                    '${meter.unit}',
+                    style: TextStyle(
+                      color: Colors.grey.shade700,
+                      fontSize: 12,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
                   const Icon(
                     Icons.chevron_right,
                     size: 20,
