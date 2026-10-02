@@ -10,7 +10,13 @@ class Meter {
   final String serialNumber;
   final ResourceType resourceType;
   final String unit;
+
+  /// Текущее показание.
   final double currentReading;
+
+  /// Показание за предыдущий месяц.
+  final double previousReading;
+
   final DateTime lastReadingDate;
 
   const Meter({
@@ -20,6 +26,7 @@ class Meter {
     required this.resourceType,
     required this.unit,
     required this.currentReading,
+    required this.previousReading,
     required this.lastReadingDate,
   });
 
@@ -27,10 +34,8 @@ class Meter {
     switch (resourceType) {
       case ResourceType.water:
         return 'Вода';
-
       case ResourceType.gas:
         return 'Газ';
-
       case ResourceType.electricity:
         return 'Электричество';
     }
@@ -40,10 +45,8 @@ class Meter {
     switch (resourceType) {
       case ResourceType.water:
         return '💧';
-
       case ResourceType.gas:
         return '🔥';
-
       case ResourceType.electricity:
         return '⚡';
     }

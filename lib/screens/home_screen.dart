@@ -1,70 +1,34 @@
 import 'package:flutter/material.dart';
 
-import '../models/meter.dart';
+import '../viewmodels/home_view_model.dart';
 import '../widgets/meter_card.dart';
 import '../widgets/resource_filter.dart';
 import 'meter_detail_screen.dart';
+import 'mock_scanner_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<HomeScreen> createState() =>
+      _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  ResourceType? selectedType;
+  late final HomeViewModel viewModel;
 
-  final List<Meter> meters = [
-    Meter(
-      id: 1,
-      name: 'Счётчик холодной воды',
-      serialNumber: 'CW-102458',
-      resourceType: ResourceType.water,
-      unit: 'м³',
-      currentReading: 128.45,
-      lastReadingDate: DateTime(2026, 9, 25),
-    ),
+  @override
+  void initState() {
+    super.initState();
 
-    Meter(
-      id: 2,
-      name: 'Счётчик горячей воды',
-      serialNumber: 'HW-783214',
-      resourceType: ResourceType.water,
-      unit: 'м³',
-      currentReading: 86.20,
-      lastReadingDate: DateTime(2026, 9, 25),
-    ),
+    viewModel = HomeViewModel();
+  }
 
-    Meter(
-      id: 3,
-      name: 'Газовый счётчик',
-      serialNumber: 'GAS-458721',
-      resourceType: ResourceType.gas,
-      unit: 'м³',
-      currentReading: 542.80,
-      lastReadingDate: DateTime(2026, 9, 24),
-    ),
+  @override
+  void dispose() {
+    viewModel.dispose();
 
-    Meter(
-      id: 4,
-      name: 'Электросчётчик',
-      serialNumber: 'EL-918273',
-      resourceType: ResourceType.electricity,
-      unit: 'кВт·ч',
-      currentReading: 3842.60,
-      lastReadingDate: DateTime(2026, 9, 25),
-    ),
-  ];
-
-  List<Meter> get filteredMeters {
-    if (selectedType == null) {
-      return meters;
-    }
-
-    return meters
-        .where((meter) => meter.resourceType == selectedType)
-        .toList();
+    super.dispose();
   }
 
   @override
@@ -79,73 +43,91 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         centerTitle: false,
       ),
+      body: ListenableBuilder(
+        listenable: viewModel,
+        builder: (context, _) {
+          return LayoutBuilder(
+            builder: (context, constraints) {
+              final bool isWideScreen =
+                  constraints.maxWidth >= 900;
 
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          final bool isWideScreen = constraints.maxWidth >= 900;
+              return Center(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxWidth:
+                        isWideScreen ? 1000 : double.infinity,
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      crossAxisAlignment:
+                          CrossAxisAlignment.start,
+                      children: [
+                        _buildHeader(),
+                        const SizedBox(height: 24),
+                        ResourceFilter(
+                          selectedType:
+                              viewModel.selectedType,
+                          onChanged: (type) {
+                            viewModel.setResourceFilter(
+                              type,
+                            );
+                          },
+                        ),
+                        const SizedBox(height: 20),
+                        Expanded(
+                          child: viewModel.meters.isEmpty
+                              ? _buildEmptyState()
+                              : ListView.builder(
+                                  itemCount:
+                                      viewModel.meters.length,
+                                  itemBuilder:
+                                      (context, index) {
+                                    final meter =
+                                        viewModel.meters[index];
 
-          return Center(
-            child: ConstrainedBox(
-              constraints: BoxConstraints(
-                maxWidth: isWideScreen ? 1000 : double.infinity,
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildHeader(),
-
-                    const SizedBox(height: 24),
-
-                    ResourceFilter(
-                      selectedType: selectedType,
-                      onChanged: (type) {
-                        setState(() {
-                          selectedType = type;
-                        });
-                      },
-                    ),
-
-                    const SizedBox(height: 20),
-
-                    Expanded(
-                      child: filteredMeters.isEmpty
-                          ? _buildEmptyState()
-                          : ListView.builder(
-                              itemCount: filteredMeters.length,
-                              itemBuilder: (context, index) {
-                                final meter = filteredMeters[index];
-
-                                return MeterCard(
-                                  meter: meter,
-                                  onTap: () {
-                                    Navigator.of(context).push(
-                                      MaterialPageRoute(
-                                        builder: (_) =>
-                                            MeterDetailScreen(
-                                          meter: meter,
-                                        ),
-                                      ),
+                                    return MeterCard(
+                                      meter: meter,
+                                      onTap: () {
+                                        Navigator.of(context)
+                                            .push(
+                                          MaterialPageRoute(
+                                            builder: (_) =>
+                                                MeterDetailScreen(
+                                              meter: meter,
+                                              viewModel:
+                                                  viewModel,
+                                            ),
+                                          ),
+                                        );
+                                      },
                                     );
                                   },
-                                );
-                              },
-                            ),
+                                ),
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
+              );
+            },
+          );
+        },
+      ),
+      floatingActionButton:
+          FloatingActionButton.extended(
+        onPressed: () async {
+          await Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) => MockScannerScreen(
+                viewModel: viewModel,
               ),
             ),
           );
         },
-      ),
-
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          _showMockScanDialog(context);
-        },
-        icon: const Icon(Icons.document_scanner_outlined),
+        icon: const Icon(
+          Icons.document_scanner_outlined,
+        ),
         label: const Text('Сканировать'),
       ),
     );
@@ -153,7 +135,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildHeader() {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment:
+          CrossAxisAlignment.start,
       children: [
         Text(
           'Мои приборы учёта',
@@ -163,13 +146,20 @@ class _HomeScreenState extends State<HomeScreen> {
             color: Colors.grey.shade900,
           ),
         ),
-
         const SizedBox(height: 8),
-
         Text(
-          'Выберите прибор, чтобы посмотреть историю показаний',
+          'Выберите прибор, чтобы посмотреть '
+          'показания, расход и стоимость',
           style: TextStyle(
             fontSize: 15,
+            color: Colors.grey.shade600,
+          ),
+        ),
+        const SizedBox(height: 12),
+        Text(
+          'Всего приборов: ${viewModel.totalMeters}',
+          style: TextStyle(
+            fontSize: 14,
             color: Colors.grey.shade600,
           ),
         ),
@@ -180,16 +170,15 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildEmptyState() {
     return Center(
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisAlignment:
+            MainAxisAlignment.center,
         children: [
           Icon(
             Icons.search_off,
             size: 60,
             color: Colors.grey.shade400,
           ),
-
           const SizedBox(height: 16),
-
           Text(
             'Приборов этого типа нет',
             style: TextStyle(
@@ -199,50 +188,6 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-    );
-  }
-
-  void _showMockScanDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Сканирование счётчика'),
-          content: const Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                Icons.camera_alt_outlined,
-                size: 70,
-              ),
-
-              SizedBox(height: 16),
-
-              Text(
-                'В рамках лабораторной работы '
-                'используется mock-механизм камеры.',
-                textAlign: TextAlign.center,
-              ),
-
-              SizedBox(height: 8),
-
-              Text(
-                'Распознавание реальной камеры '
-                'реализовываться не будет.',
-                textAlign: TextAlign.center,
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Закрыть'),
-            ),
-          ],
-        );
-      },
     );
   }
 }
